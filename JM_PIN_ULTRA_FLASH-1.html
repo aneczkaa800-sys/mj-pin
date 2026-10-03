@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>J&M ❤️</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;position:fixed;inset:0}
+body{
+  background:
+    radial-gradient(circle at 50% 16%,#65134e 0,#321329 28%,#120812 65%,#050407 100%);
+  color:#fff;font-family:Georgia,serif;touch-action:none;
+}
+.wrap{height:100dvh;width:100%;display:flex;flex-direction:column;align-items:center;
+  justify-content:flex-start;text-align:center;padding-top:7vh;overflow:hidden}
+.heart{font-size:clamp(55px,15vw,82px);line-height:1;color:#ff2498;
+  text-shadow:0 0 14px #ff2498,0 0 42px #d00080;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.06);filter:brightness(1.18)}}
+h1{font-size:clamp(48px,14vw,68px);font-weight:400;margin:18px 0 25px}
+h1 span{color:#ff2997}
+.info{font:12px/2 Arial,sans-serif;letter-spacing:3.5px;color:#aaa;
+  width:min(90vw,430px)}
+#dots{font:28px Arial;margin:25px 0;color:#888;letter-spacing:7px;height:34px}
+.keys{width:min(86vw,310px);display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+button{width:min(24vw,82px);height:min(24vw,82px);border-radius:50%;
+  border:1px solid #442638;background:#19121c;color:#fff;font-size:27px;
+  box-shadow:0 3px 15px #0008;touch-action:manipulation}
+button:active{transform:scale(.9);background:#ff2997;box-shadow:0 0 28px #ff2997}
+.empty{visibility:hidden}
+#msg{height:30px;margin-top:14px;color:#ff69b5;font:18px Arial}
+#fx{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.flash{position:absolute;inset:0;background:white;opacity:0;pointer-events:none}
+.flash.go{animation:cameraFlash .26s ease-out}
+@keyframes cameraFlash{
+0%{opacity:0}
+8%{opacity:1}
+18%{opacity:1}
+30%{opacity:.92}
+42%{opacity:0}
+55%{opacity:1}
+67%{opacity:.85}
+78%{opacity:0}
+100%{opacity:0}
+}
+.piece{position:absolute;width:7px;height:13px;opacity:1;border-radius:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="heart">♥</div>
+  <h1>J<span>&</span>M</h1>
+  <div class="info">WPISZ PIN (3037),<br>ABY ZOBACZYĆ NASZĄ HISTORIĘ</div>
+  <div id="dots">○ ○ ○ ○</div>
+  <div class="keys">
+    <button onclick="press(1)">1</button><button onclick="press(2)">2</button><button onclick="press(3)">3</button>
+    <button onclick="press(4)">4</button><button onclick="press(5)">5</button><button onclick="press(6)">6</button>
+    <button onclick="press(7)">7</button><button onclick="press(8)">8</button><button onclick="press(9)">9</button>
+    <button class="empty"></button><button onclick="press(0)">0</button><button onclick="back()">⌫</button>
+  </div>
+  <div id="msg"></div>
+</div>
+<div id="fx">
+  <div class="flash" id="flash"></div>
+  <div class="flash" id="flash2"></div>
+</div>
+
+<script>
+let pin="",busy=false;
+const correct="3037";
+function updateDots(){document.getElementById("dots").textContent=[0,1,2,3].map(i=>i<pin.length?"●":"○").join(" ")}
+function press(n){if(busy||pin.length>=4)return;pin+=n;updateDots();if(pin.length===4)setTimeout(check,160)}
+function back(){if(busy)return;pin=pin.slice(0,-1);updateDots()}
+function check(){
+ const msg=document.getElementById("msg");
+ if(pin===correct){busy=true;msg.textContent="Tak jest kochanie! ❤️";cameraEffect()}
+ else{msg.textContent="Niepoprawny PIN 💔";pin="";setTimeout(()=>{updateDots();msg.textContent=""},650)}
+}
+function cameraEffect(){
+ const fx=document.getElementById("fx"),flash=document.getElementById("flash"),flash2=document.getElementById("flash2");
+ // Several bright camera-like flashes, with short gaps between shots.
+ [0,260,520,800,1080,1380,1720].forEach((delay,i)=>{
+   setTimeout(()=>{
+     flash.classList.remove("go"); flash2.classList.remove("go");
+     void flash.offsetWidth; void flash2.offsetWidth;
+     flash.classList.add("go"); flash2.classList.add("go");
+     // Extra pure-white "camera" pop slightly offset from the first flash.
+     setTimeout(()=>{flash2.classList.remove("go"); void flash2.offsetWidth; flash2.classList.add("go")},70);
+     setTimeout(()=>{flash.classList.remove("go"); flash2.classList.remove("go")},310);
+   },delay);
+ });
+ // Confetti bursts from both sides, like a celebratory photo effect.
+ const pieces=[];
+ const colors=["#ff2997","#fff","#ff8ac7","#e60075","#ffd1ea"];
+ for(let i=0;i<650;i++){
+   const p=document.createElement("div");p.className="piece";
+   p.style.background=colors[Math.floor(Math.random()*colors.length)];
+   p.style.left=(Math.random()<.5?-3:103)+"vw";
+   p.style.top=(45+Math.random()*25)+"vh";
+   p.style.width=(4+Math.random()*7)+"px";
+   p.style.height=(7+Math.random()*13)+"px";
+   fx.appendChild(p);
+   const fromLeft=p.style.left[0]==="-";
+   pieces.push({el:p,x:fromLeft?-20:innerWidth+20,y:innerHeight*(.45+Math.random()*.25),
+     vx:fromLeft?4+Math.random()*12:-4-Math.random()*12,vy:-8-Math.random()*15,
+     rot:Math.random()*360,vr:-12+Math.random()*24,life:1});
+ }
+ let last=performance.now();
+ function anim(now){
+   const dt=Math.min(32,now-last)/16;last=now;
+   let alive=false;
+   for(const p of pieces){
+     if(p.life<=0)continue;alive=true;
+     p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=.36*dt;p.rot+=p.vr*dt;p.life-=.006*dt;
+     p.el.style.transform=`translate(${p.x}px,${p.y}px) rotate(${p.rot}deg)`;
+     p.el.style.opacity=Math.max(0,p.life);
+   }
+   if(alive)requestAnimationFrame(anim);
+   else pieces.forEach(p=>p.el.remove());
+ }
+ requestAnimationFrame(anim);
+}
+</script>
+</body>
+</html>
